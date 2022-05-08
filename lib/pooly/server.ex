@@ -10,6 +10,10 @@ defmodule Pooly.Server do
     GenServer.start_link(__MODULE__, [sup, pool_config], name: __MODULE__)
   end
 
+  def checkout() do
+    GenServer.call(__MODULE__, :checkout)
+  end
+
   # Callbacks
   def init([sup, pool_config]) when is_pid(sup) do
     init(pool_config, %State{sup: sup})
