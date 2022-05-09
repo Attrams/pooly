@@ -42,6 +42,18 @@ defmodule Pooly.Server do
     {:noreply, %{state | worker_sup: worker_sup, workers: workers}}
   end
 
+  def handle_call(:checkout, {from_pid, _ref}, %{workers: workers, monitors: monitors} = state) do
+    case workers do
+      [worker | rest] ->
+        ref = Process.monitor(from_pid)
+        true = :ets.insert(monitors, {worker, ref})
+        {:reply, worker, %{state | workers: rest}}
+
+      [] ->
+        {:reply, :noproc, state}
+    end
+  end
+
   # Private Functions
   defp supervisor_spec(mfa) do
     opts = [restart: :temporary]
